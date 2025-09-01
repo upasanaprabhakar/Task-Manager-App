@@ -37,17 +37,19 @@ function Auth({ mode }) {
     }
 
     if (isLogin) {
+      // Hardcoded login check for example
       if (form.email === "test@example.com" && form.password === "password123") {
-        localStorage.setItem("username", "Test User");  
+        localStorage.setItem("username", "Test User");
         showSuccess(`Welcome back, Test User!`);
         navigate("/");
       } else {
         showWarning("Invalid email or password.");
       }
     } else {
+      // Registration: auto-login after register
       localStorage.setItem("username", form.name);
       showSuccess(`Registration successful! Welcome, ${form.name}!`);
-      navigate("/auth");
+      navigate("/"); // Redirect to main dashboard or homepage after registration
     }
   };
 
