@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="40" viewBox="0 0 160 40" fill="none">
+  <!-- Hourglass -->
+  <path d="M10 5 L30 5 L20 15 Z M10 35 L30 35 L20 25 Z" stroke="#853dd9" stroke-width="2" fill="none"></path>
+  <!-- Checkmark inside -->
+  <path d="M14 20 L18 24 L26 16" stroke="#9342f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+  <!-- Text -->
+  <text x="40" y="27" font-family="Inter, sans-serif" font-weight="600" font-size="20" fill="#130a1d">
+    Task
+  </text>
+  <text x="90" y="27" font-family="Inter, sans-serif" font-weight="400" font-size="20" fill="#853dd9">
+    Master
+  </text>
+</svg>
