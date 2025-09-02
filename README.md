@@ -54,7 +54,8 @@
 <img width="1919" height="873" alt="Screenshot 2025-09-01 221610" src="https://github.com/user-attachments/assets/87f830c9-dcdc-49c2-b3dd-0818338c8358" />
 
 <h1 style="font-size:2rem; margin-bottom:0.75rem;">📌Login/Register</h1>
-<img width="1919" height="866" alt="Screenshot 2025-09-01 221723" src="https://github.com/user-attachments/assets/9e69d21e-f25f-46e8-8884-81dca0f54b2f" />
+<img width="1919" height="862" alt="Screenshot 2025-09-02 230539" src="https://github.com/user-attachments/assets/17c67004-5ee8-4533-9bb5-56d1be080a46" />
+
 
 <h2 style="font-size:2rem; margin-bottom:0.75rem;">💻 Installation &amp; Setup</h2>
 <ol style="font-size:1.1rem; line-height:1.6; color:#333; padding-left:1.5rem; margin-bottom:2rem;">

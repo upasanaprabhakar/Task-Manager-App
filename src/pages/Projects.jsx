@@ -1,4 +1,3 @@
-// Projects.jsx
 import React, { useState, useRef, useEffect } from "react";
 import "./Projects.css";
 import SearchBar from "../components/SearchBar";
@@ -7,6 +6,7 @@ import plusAnimation from "../assets/plus.json";
 import { showSuccess, showInfo, showWarning } from "../components/ToastProvider";
 import { toast } from "react-toastify";
 import NoProjectsImage from "../assets/No_Projects.png";
+
 
 function Projects() {
   const [projects, setProjects] = useState([]);
@@ -19,13 +19,20 @@ function Projects() {
   const modalDropdownRef = useRef(null);
   const statusOptions = ["Pending", "Ongoing", "Completed"];
 
+  // Fetch projects with token
   useEffect(() => {
-    fetch("http://localhost:5000/api/projects")
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetch("http://localhost:5000/api/projects", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((res) => res.json())
-      .then(setProjects)
+      .then((data) => setProjects(data || []))
       .catch(() => showWarning("Failed to load projects"));
   }, []);
 
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (modalDropdownRef.current && !modalDropdownRef.current.contains(e.target)) {
@@ -37,24 +44,22 @@ function Projects() {
   }, []);
 
   const getProgressFromStatus = (status) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case "completed":
         return 100;
       case "ongoing":
         return 50;
-      case "pending":
       default:
         return 10;
     }
   };
 
   const getProgressBarColor = (status) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case "completed":
         return "#137b47";
       case "ongoing":
         return "#853dd9";
-      case "pending":
       default:
         return "#d43d3d";
     }
@@ -62,57 +67,59 @@ function Projects() {
 
   const filteredProjects = projects.filter(
     (project) =>
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      project.name?.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (filter === "All" || project.status === filter)
   );
 
   const handleAddOrEditProject = () => {
-    if (newProject.name.trim() === "" || !newProject.due) return;
-
-    if (editId !== null) {
-      fetch(`http://localhost:5000/api/projects/${editId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newProject),
-      })
-        .then((res) => res.json())
-        .then((updated) => {
-          setProjects(projects.map((p) => (p._id === editId ? updated : p)));
-          showInfo("Project updated successfully!");
-          setEditId(null);
-          setShowAddProject(false);
-          setModalDropdownOpen(false);
-          setNewProject({ name: "", due: "", status: "Pending" });
-        })
-        .catch(() => showWarning("Failed to update project"));
-    } else {
-      fetch("http://localhost:5000/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newProject),
-      })
-        .then((res) => res.json())
-        .then((created) => {
-          setProjects([...projects, created]);
-          showSuccess("Project added successfully!");
-          setShowAddProject(false);
-          setModalDropdownOpen(false);
-          setNewProject({ name: "", due: "", status: "Pending" });
-        })
-        .catch(() => showWarning("Failed to add project"));
+    if (!newProject.name.trim() || !newProject.due) {
+      showWarning("Please provide a name and due date.");
+      return;
     }
+
+    const token = localStorage.getItem("token");
+    const url = editId
+      ? `http://localhost:5000/api/projects/${editId}`
+      : "http://localhost:5000/api/projects";
+    const method = editId ? "PUT" : "POST";
+
+    fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(newProject),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (editId) {
+          setProjects(projects.map((p) => (p._id === editId ? data : p)));
+          showInfo("Project updated successfully!");
+        } else {
+          setProjects([...projects, data]);
+          showSuccess("Project added successfully!");
+        }
+        setShowAddProject(false);
+        setEditId(null);
+        setNewProject({ name: "", due: "", status: "Pending" });
+        setModalDropdownOpen(false);
+      })
+      .catch(() => showWarning("Failed to save project"));
   };
 
   const handleEdit = (id) => {
     const project = projects.find((p) => p._id === id);
     if (project) {
-      setNewProject({ name: project.name, due: project.due.slice(0, 10), status: project.status });
+      setNewProject({
+        name: project.name || "",
+        due: project.due ? project.due.slice(0, 10) : "",
+        status: project.status || "Pending",
+      });
       setShowAddProject(true);
       setEditId(id);
     }
   };
 
   const handleDelete = (id) => {
+    const token = localStorage.getItem("token");
     showWarning(
       <div>
         <span>Are you sure you want to delete this project?</span>
@@ -120,7 +127,10 @@ function Projects() {
           <button
             className="toast-confirm-button yes"
             onClick={() => {
-              fetch(`http://localhost:5000/api/projects/${id}`, { method: "DELETE" }).then((res) => {
+              fetch(`http://localhost:5000/api/projects/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              }).then((res) => {
                 if (res.ok) {
                   setProjects(projects.filter((p) => p._id !== id));
                   showSuccess("Project deleted successfully!");
@@ -172,7 +182,7 @@ function Projects() {
           filteredProjects.map((project) => (
             <div className="task-card" key={project._id}>
               <h2 className="task-title">{project.name}</h2>
-              <p className="task-due">Due: {project.due.slice(0, 10)}</p>
+              <p className="task-due">Due: {project.due ? project.due.slice(0, 10) : "No date"}</p>
               <div className="progress-bar">
                 <div
                   className="progress-fill"
@@ -181,10 +191,11 @@ function Projects() {
                     backgroundColor: getProgressBarColor(project.status),
                     height: "8px",
                     borderRadius: "6px",
+                    transition: "width 0.3s ease",
                   }}
-                ></div>
+                />
               </div>
-              <span className={`task-status ${project.status.toLowerCase()}`}>{project.status}</span>
+              <span className={`task-status ${project.status?.toLowerCase()}`}>{project.status}</span>
               <div className="task-actions">
                 <button className="edit-btn" onClick={() => handleEdit(project._id)}>
                   Edit
@@ -197,6 +208,7 @@ function Projects() {
           ))
         )}
       </div>
+
       <div
         className="add-task-btn"
         onClick={() => {
@@ -206,19 +218,15 @@ function Projects() {
       >
         <Lottie
           animationData={plusAnimation}
-          loop={true}
-          style={{
-            width: 70,
-            height: 70,
-            cursor: "pointer",
-            filter: "hue-rotate(111deg)",
-          }}
+          loop
+          style={{ width: 70, height: 70, cursor: "pointer", filter: "hue-rotate(111deg)" }}
         />
       </div>
+
       {showAddProject && (
         <div className="addtask-overlay">
           <div className="addtask-modal">
-            <h2>{editId !== null ? "Edit Project" : "Add New Project"}</h2>
+            <h2>{editId ? "Edit Project" : "Add New Project"}</h2>
             <input
               type="text"
               placeholder="Project Name"
@@ -231,6 +239,7 @@ function Projects() {
               value={newProject.due}
               onChange={(e) => setNewProject({ ...newProject, due: e.target.value })}
             />
+
             <div className="modal-dropdown" ref={modalDropdownRef}>
               <div className="modal-dropdown-header" onClick={() => setModalDropdownOpen(!modalDropdownOpen)}>
                 {newProject.status}
@@ -255,7 +264,7 @@ function Projects() {
             </div>
 
             <div className="modal-actions">
-              <button onClick={handleAddOrEditProject}>{editId !== null ? "Update" : "Add"}</button>
+              <button onClick={handleAddOrEditProject}>{editId ? "Update" : "Add"}</button>
               <button
                 onClick={() => {
                   setShowAddProject(false);

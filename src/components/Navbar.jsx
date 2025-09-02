@@ -10,8 +10,31 @@ function Navbar() {
   const navigate = useNavigate();
 
   useEffect(() => {
+  // initial set
+  setUsername(localStorage.getItem("username") || "");
+
+  // re-check after 1 second (adjust as needed)
+  const timer = setTimeout(() => {
     setUsername(localStorage.getItem("username") || "");
-  }, []);
+  }, 1000);
+
+  return () => clearTimeout(timer);
+}, []);
+
+  useEffect(() => {
+  const storedUsername = localStorage.getItem("username");
+  setUsername(storedUsername || "");
+
+  const handleStorageChange = () => {
+    setUsername(localStorage.getItem("username") || "");
+  };
+
+  window.addEventListener("storage", handleStorageChange);
+
+  return () => {
+    window.removeEventListener("storage", handleStorageChange);
+  };
+}, []);
 
   const handleLogout = () => {
     showWarning(
@@ -25,7 +48,7 @@ function Navbar() {
               setUsername("");
               toast.dismiss();
               showSuccess("Logged out successfully!");
-              navigate("/auth");
+              navigate("/");
             }}
           >
             Yes
