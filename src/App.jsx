@@ -1,4 +1,4 @@
-import React from "react";
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import TaskList from "./components/TaskList";
@@ -14,9 +14,9 @@ function App() {
         <Navbar />
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<TaskList />} />
+            <Route path="/tasklist" element={<TaskList />} />
             <Route path="/projects" element={<Projects />} />
-            <Route path="/auth" element={<Auth mode="login" />} />
+            <Route path="/" element={<Auth mode="login" />} />
             <Route path="/auth/register" element={<Auth mode="register" />} />
           </Routes>
         </main>

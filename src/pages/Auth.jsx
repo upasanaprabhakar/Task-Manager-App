@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { showSuccess, showInfo, showWarning } from "../components/ToastProvider";
-import { toast } from "react-toastify";
 import "./Auth.css";
 
 function Auth({ mode }) {
@@ -14,6 +13,7 @@ function Auth({ mode }) {
     password: "",
     confirmPassword: "",
   });
+  
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -41,7 +41,7 @@ function Auth({ mode }) {
       if (form.email === "test@example.com" && form.password === "password123") {
         localStorage.setItem("username", "Test User");
         showSuccess(`Welcome back, Test User!`);
-        navigate("/");
+        navigate("/tasklist");
       } else {
         showWarning("Invalid email or password.");
       }
@@ -52,6 +52,69 @@ function Auth({ mode }) {
       navigate("/"); // Redirect to main dashboard or homepage after registration
     }
   };
+  const handleauth = async()=>{
+    if(isLogin==="login"){
+      await handleLogin();
+    }else await handleRegister();
+  }
+  const handleLogin = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Login failed:", errorData);
+        return;
+      }
+
+      const data = await res.json();
+      console.log("Login successful, token:", data.token);
+      navigate("/tasklist");
+      // Optionally save token for later use
+      localStorage.setItem("token", data.token);
+    } catch (err) {
+      console.error("Error during login:", err);
+    }
+  
+};
+const handleRegister = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: form.email,
+          password: form.password,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Login failed:", errorData);
+        return;
+      }
+
+      const data = await res.json();
+      navigate("/tasklist");
+      console.log("upasana");
+      // Optionally save token for later use
+      localStorage.setItem("token", data.token);
+    } catch (err) {
+      console.error("Error during login:", err);
+    }
+    }
+
 
   const EyeIcon = ({ visible }) => (
     <svg
@@ -165,7 +228,7 @@ function Auth({ mode }) {
               </div>
             </div>
           )}
-          <button type="submit" className="auth-btn" style={{ marginTop: "1.5rem" }}>
+          <button type="submit" className="auth-btn" onClick={handleauth} style={{ marginTop: "1.5rem" }}>
             {isLogin ? "Login" : "Register"}
           </button>
         </form>
@@ -179,7 +242,7 @@ function Auth({ mode }) {
         ) : (
           <p className="auth-switch-text">
             Already have an account?{" "}
-            <Link to="/auth" className="auth-switch-link">
+            <Link to="/" className="auth-switch-link">
               Login
             </Link>
           </p>

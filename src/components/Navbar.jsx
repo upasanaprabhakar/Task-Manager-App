@@ -48,7 +48,7 @@ function Navbar() {
         <img src={logo} alt="TaskMaster Logo" className="logo-img" />
       </div>
       <nav className="navbar__links">
-        <NavLink to="/" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")} end>
+        <NavLink to="/tasklist" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")} end>
           My Tasks
         </NavLink>
         <NavLink to="/projects" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
@@ -59,7 +59,7 @@ function Navbar() {
             Logout
           </button>
         ) : (
-          <NavLink to="/auth" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+          <NavLink to="/" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
             Login / Register
           </NavLink>
         )}
